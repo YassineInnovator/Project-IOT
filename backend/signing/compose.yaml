@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  signing:
+    build:
+      context: ./backend/signing
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      - DATABASE_URL=postgresql://user:password@db:5432/signing_db
+      - REDIS_URL=redis://redis:6379/0  # Redis connection string
+    depends_on:
+      - db
+      - redis
+
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: signing_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"  # Expose Redis on port 6379
+
+volumes:
+  postgres_data:
